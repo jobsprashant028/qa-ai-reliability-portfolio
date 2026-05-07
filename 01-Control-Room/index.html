@@ -1,0 +1,2729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio Evolution Control Room</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&family=Playfair+Display:wght@400;500&display=swap');
+
+  :root {
+    --bg: #f4f5f7;
+    --surface: #ffffff;
+    --surface2: #f8f9fb;
+    --border: #e4e8ef;
+    --border2: #d0d7e3;
+    --text-primary: #1a2033;
+    --text-secondary: #4a5568;
+    --text-muted: #8896ae;
+    --accent: #2563eb;
+    --accent-light: #eff4ff;
+    --accent-mid: #bfcfff;
+    --green: #16a34a;
+    --green-light: #f0fdf4;
+    --green-mid: #bbf7d0;
+    --amber: #d97706;
+    --amber-light: #fffbeb;
+    --red: #dc2626;
+    --red-light: #fef2f2;
+    --sidebar-w: 240px;
+    --header-h: 64px;
+    --radius: 10px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 24px rgba(0,0,0,0.10);
+    --font: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+    --serif: 'Playfair Display', serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ===== SIDEBAR ===== */
+  #sidebar {
+    width: var(--sidebar-w);
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+  }
+
+  .sidebar-logo {
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-logo .logo-icon {
+    width: 36px; height: 36px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 10px;
+  }
+
+  .sidebar-logo .logo-icon svg { width: 20px; height: 20px; fill: white; }
+
+  .sidebar-logo .sys-name {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  nav { padding: 12px 0; flex: 1; }
+
+  .nav-section {
+    padding: 4px 16px 2px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: 8px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 6px;
+    margin: 1px 8px;
+    color: var(--text-secondary);
+    font-weight: 400;
+    font-size: 13.5px;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .nav-item:hover { background: var(--bg); color: var(--text-primary); }
+  .nav-item.active { background: var(--accent-light); color: var(--accent); font-weight: 500; }
+
+  .nav-item .nav-icon {
+    width: 18px; height: 18px;
+    opacity: 0.7;
+    flex-shrink: 0;
+  }
+
+  .nav-item.active .nav-icon { opacity: 1; }
+
+  .sidebar-footer {
+    padding: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  /* ===== MAIN CONTENT ===== */
+  #main {
+    margin-left: var(--sidebar-w);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  /* ===== HEADER ===== */
+  #header {
+    height: var(--header-h);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    position: sticky; top: 0;
+    z-index: 90;
+  }
+
+  .header-left h1 {
+    font-family: var(--serif);
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--text-primary);
+    letter-spacing: 0.01em;
+  }
+
+  .header-left p {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    margin-top: 1px;
+  }
+
+  .header-right { display: flex; align-items: center; gap: 12px; }
+
+  .header-badge {
+    background: var(--green-light);
+    color: var(--green);
+    border: 1px solid var(--green-mid);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  .btn {
+    padding: 7px 16px;
+    border-radius: 7px;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.15s;
+  }
+
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: #1d4ed8; }
+  .btn-secondary { background: var(--surface2); color: var(--text-secondary); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: var(--border); }
+  .btn-sm { padding: 5px 12px; font-size: 12px; }
+  .btn-danger { background: var(--red-light); color: var(--red); border: 1px solid #fecaca; }
+
+  /* ===== PAGE CONTENT ===== */
+  #content {
+    padding: 28px;
+    flex: 1;
+  }
+
+  .page { display: none; animation: fadeIn 0.2s ease; }
+  .page.active { display: block; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .page-header {
+    margin-bottom: 24px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .page-header h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .page-header p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 3px;
+  }
+
+  .page-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* ===== CARDS ===== */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+
+  .card-body { padding: 20px; }
+  .card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-header h3 { font-size: 14px; font-weight: 600; }
+
+  /* ===== GRID ===== */
+  .grid { display: grid; gap: 16px; }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+
+  /* ===== STAT CARDS ===== */
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
+  }
+
+  .stat-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1;
+    margin-bottom: 6px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .stat-bar {
+    height: 4px;
+    background: var(--bg);
+    border-radius: 99px;
+    margin-top: 10px;
+    overflow: hidden;
+  }
+
+  .stat-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: var(--accent);
+    transition: width 0.6s ease;
+  }
+
+  .stat-bar-fill.green { background: var(--green); }
+  .stat-bar-fill.amber { background: var(--amber); }
+
+  /* ===== STATUS BADGES ===== */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  .badge-green { background: var(--green-light); color: var(--green); border: 1px solid var(--green-mid); }
+  .badge-blue { background: var(--accent-light); color: var(--accent); border: 1px solid var(--accent-mid); }
+  .badge-amber { background: var(--amber-light); color: var(--amber); border: 1px solid #fde68a; }
+  .badge-red { background: var(--red-light); color: var(--red); border: 1px solid #fecaca; }
+  .badge-gray { background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border); }
+
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  /* ===== PROGRESS CIRCLE ===== */
+  .progress-circle-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+
+  .progress-circle {
+    position: relative;
+    width: 72px; height: 72px;
+  }
+
+  .progress-circle svg { transform: rotate(-90deg); }
+  .progress-circle .pct {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  /* ===== PROGRESS BAR ===== */
+  .progress-bar {
+    height: 6px;
+    background: var(--bg);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: var(--accent);
+    transition: width 0.5s ease;
+  }
+
+  .progress-fill.green { background: var(--green); }
+  .progress-fill.amber { background: var(--amber); }
+
+  /* ===== TABLE ===== */
+  .table-wrap { overflow-x: auto; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  thead th {
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  tbody td {
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-secondary);
+    vertical-align: top;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--bg); }
+
+  /* ===== FORM ===== */
+  .form-group { margin-bottom: 14px; }
+  .form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 5px;
+  }
+
+  input[type="text"], input[type="date"], input[type="number"],
+  select, textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border2);
+    border-radius: 7px;
+    font-family: var(--font);
+    font-size: 13px;
+    color: var(--text-primary);
+    background: var(--surface);
+    transition: border-color 0.15s;
+    outline: none;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
+  }
+
+  textarea { resize: vertical; min-height: 72px; }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+  /* ===== MODAL ===== */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(15,23,42,0.4);
+    backdrop-filter: blur(2px);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.15s ease;
+  }
+
+  .modal {
+    background: var(--surface);
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUp 0.2s ease;
+  }
+
+  @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+  .modal-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .modal-header h3 { font-size: 15px; font-weight: 600; }
+  .modal-body { padding: 22px; }
+  .modal-footer {
+    padding: 14px 22px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .btn-close {
+    background: none; border: none; cursor: pointer;
+    color: var(--text-muted); font-size: 18px; line-height: 1;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .btn-close:hover { background: var(--bg); }
+
+  /* ===== SEARCH ===== */
+  .search-bar {
+    position: relative;
+  }
+
+  .search-bar input {
+    padding-left: 32px;
+    width: 100%;
+  }
+
+  .search-icon {
+    position: absolute; left: 10px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+
+  /* ===== TIMELINE ===== */
+  .timeline { position: relative; }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 16px; top: 0; bottom: 0;
+    width: 2px;
+    background: var(--border);
+  }
+
+  .timeline-item {
+    position: relative;
+    padding-left: 44px;
+    padding-bottom: 24px;
+  }
+
+  .timeline-dot {
+    position: absolute;
+    left: 10px; top: 4px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 2px solid var(--accent);
+  }
+
+  .timeline-dot.done { background: var(--accent); }
+  .timeline-dot.pending { border-color: var(--border2); }
+
+  .timeline-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    box-shadow: var(--shadow);
+  }
+
+  .timeline-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .timeline-card-title { font-size: 13.5px; font-weight: 600; }
+  .timeline-date { font-size: 11px; color: var(--text-muted); font-family: var(--mono); white-space: nowrap; }
+
+  /* ===== SLIDER ===== */
+  .slider-row { margin-bottom: 16px; }
+  .slider-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+
+  .slider-name { font-size: 13px; color: var(--text-secondary); }
+  .slider-val { font-size: 13px; font-weight: 600; color: var(--accent); font-family: var(--mono); }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 5px;
+    background: var(--bg);
+    border-radius: 99px;
+    outline: none;
+    padding: 0;
+    border: none;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(37,99,235,0.3);
+  }
+
+  /* ===== ROADMAP ===== */
+  .roadmap-phase {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+
+  .phase-header {
+    display: grid;
+    grid-template-columns: 40px 1fr auto auto;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 18px;
+    cursor: pointer;
+  }
+
+  .phase-num {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    background: var(--accent-light);
+    color: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+  }
+
+  .phase-title { font-size: 14px; font-weight: 600; }
+  .phase-sub { font-size: 12px; color: var(--text-muted); }
+
+  .phase-body {
+    padding: 0 18px 16px;
+    display: none;
+    border-top: 1px solid var(--border);
+  }
+
+  .phase-body.open { display: block; padding-top: 14px; }
+
+  /* ===== CHECKLIST ===== */
+  .checklist-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+  }
+
+  .checklist-item:last-child { border-bottom: none; }
+
+  .check-box {
+    width: 18px; height: 18px;
+    border: 2px solid var(--border2);
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .check-box.checked {
+    background: var(--green);
+    border-color: var(--green);
+    color: white;
+  }
+
+  .check-label { font-size: 13px; flex: 1; }
+  .check-label.checked { text-decoration: line-through; color: var(--text-muted); }
+
+  /* ===== TABS ===== */
+  .tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+
+  .tab {
+    padding: 8px 16px;
+    font-size: 13px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    color: var(--text-muted);
+    margin-bottom: -1px;
+    font-weight: 500;
+    transition: all 0.15s;
+  }
+
+  .tab:hover { color: var(--text-primary); }
+  .tab.active { border-bottom-color: var(--accent); color: var(--accent); }
+
+  /* ===== SECTION DIVIDERS ===== */
+  .section-title {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    margin-top: 24px;
+  }
+
+  .section-title:first-child { margin-top: 0; }
+
+  /* ===== VERSION HISTORY ===== */
+  .version-item {
+    display: flex;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    align-items: flex-start;
+  }
+
+  .version-tag {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-family: var(--mono);
+    font-weight: 500;
+    color: var(--accent);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* ===== EMPTY STATE ===== */
+  .empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--text-muted);
+  }
+
+  .empty-state .empty-icon { font-size: 32px; margin-bottom: 12px; opacity: 0.5; }
+  .empty-state p { font-size: 13px; }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 900px) {
+    #sidebar { transform: translateX(-100%); }
+    #sidebar.open { transform: translateX(0); }
+    #main { margin-left: 0; }
+    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: repeat(2, 1fr); }
+    .form-row, .form-row-3 { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 600px) {
+    .grid-3, .grid-4, .grid-2 { grid-template-columns: 1fr; }
+    #content { padding: 16px; }
+  }
+
+  /* ===== MISC ===== */
+  .flex { display: flex; }
+  .flex-center { display: flex; align-items: center; }
+  .gap-8 { gap: 8px; }
+  .gap-12 { gap: 12px; }
+  .gap-16 { gap: 16px; }
+  .mb-16 { margin-bottom: 16px; }
+  .mb-8 { margin-bottom: 8px; }
+  .mt-16 { margin-top: 16px; }
+  .mt-8 { margin-top: 8px; }
+  .text-muted { color: var(--text-muted); font-size: 12px; }
+  .text-mono { font-family: var(--mono); }
+  .full-width { width: 100%; }
+
+  .menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 6px;
+    color: var(--text-secondary);
+    font-size: 20px;
+  }
+
+  @media (max-width: 900px) { .menu-btn { display: flex; align-items: center; } }
+
+  .info-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .info-row:last-child { border-bottom: none; }
+  .info-key { color: var(--text-muted); min-width: 160px; flex-shrink: 0; }
+  .info-val { color: var(--text-primary); font-weight: 500; }
+
+  .domain-status-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .domain-status-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+  }
+
+  .domain-status-icon { font-size: 20px; margin-bottom: 4px; }
+  .domain-status-label { font-size: 11px; color: var(--text-muted); }
+  .domain-status-val { font-size: 12px; font-weight: 600; margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    </div>
+    <div class="sys-name">Control Room</div>
+  </div>
+  <nav>
+    <div class="nav-section">Overview</div>
+    <div class="nav-item active" onclick="navigate('dashboard')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </div>
+
+    <div class="nav-section">Portfolio</div>
+    <div class="nav-item" onclick="navigate('timeline')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3" cy="6" r="1" fill="currentColor"/><circle cx="3" cy="12" r="1" fill="currentColor"/><circle cx="3" cy="18" r="1" fill="currentColor"/></svg>
+      Journey Timeline
+    </div>
+    <div class="nav-item" onclick="navigate('repos')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+      Repository Tracker
+    </div>
+    <div class="nav-item" onclick="navigate('videos')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+      Video Knowledge Vault
+    </div>
+    <div class="nav-item" onclick="navigate('recruiter')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      Recruiter Readiness
+    </div>
+    <div class="nav-item" onclick="navigate('domain')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      Domain & Infrastructure
+    </div>
+
+    <div class="nav-section">Strategy</div>
+    <div class="nav-item" onclick="navigate('decisions')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Decision Log
+    </div>
+    <div class="nav-item" onclick="navigate('weekly')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Weekly Review
+    </div>
+    <div class="nav-item" onclick="navigate('maturity')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Maturity Engine
+    </div>
+    <div class="nav-item" onclick="navigate('roadmap')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+      Future Roadmap
+    </div>
+    <div class="nav-item" onclick="navigate('versions')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Version History
+    </div>
+
+    <div class="nav-section">System</div>
+    <div class="nav-item" onclick="navigate('export')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Export / Import
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    Portfolio Evolution Control Room · v0.4
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div id="main">
+
+  <!-- HEADER -->
+  <header id="header">
+    <div class="flex-center gap-8">
+      <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+      <div class="header-left">
+        <h1>Portfolio Evolution Control Room</h1>
+        <p>Engineering the evolution of a recruiter-grade AI Reliability &amp; QA portfolio ecosystem.</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="header-badge"><span class="dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;margin-right:4px;"></span>Phase 1 Active</span>
+      <button class="btn btn-secondary btn-sm" onclick="navigate('export')">⬇ Export</button>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <main id="content">
+
+    <!-- ===== DASHBOARD ===== -->
+    <div id="page-dashboard" class="page active">
+      <div class="page-header">
+        <div>
+          <h2>Dashboard</h2>
+          <p>Real-time portfolio evolution overview.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-4 mb-16" id="dash-stats"></div>
+
+      <div class="grid grid-2 mb-16">
+        <div class="card">
+          <div class="card-header"><h3>Maturity Scores</h3></div>
+          <div class="card-body">
+            <div id="dash-maturity-scores"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Roadmap Progress</h3></div>
+          <div class="card-body">
+            <div id="dash-roadmap-progress"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-header"><h3>Recent Activities</h3><span class="text-muted">Last 5</span></div>
+          <div class="card-body" id="dash-recent"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Next Actions</h3></div>
+          <div class="card-body" id="dash-next"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TIMELINE ===== -->
+    <div id="page-timeline" class="page">
+      <div class="page-header">
+        <div>
+          <h2>Portfolio Journey Timeline</h2>
+          <p>Complete chronological record of portfolio evolution activities.</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-primary" onclick="openModal('modal-timeline')">+ Add Entry</button>
+        </div>
+      </div>
+
+      <div class="mb-16 flex-center gap-12">
+        <div class="search-bar" style="flex:1">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="Search activities…" oninput="filterTimeline(this.value)" id="timeline-search">
+        </div>
+        <select onchange="filterTimelineCat(this.value)" id="timeline-cat-filter" style="width:180px">
+          <option value="">All Categories</option>
+          <option>Infrastructure</option>
+          <option>GitHub</option>
+          <option>Documentation</option>
+          <option>Strategy</option>
+          <option>Deployment</option>
+          <option>Learning</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div class="timeline" id="timeline-list"></div>
+    </div>
+
+    <!-- ===== VIDEOS ===== -->
+    <div id="page-videos" class="page">
+      <div class="page-header">
+        <div>
+          <h2>Video Knowledge Vault</h2>
+          <p>All Movavi-recorded learning sessions.</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-primary" onclick="openModal('modal-video')">+ Add Video</button>
+        </div>
+      </div>
+
+      <div class="mb-16 flex-center gap-12">
+        <div class="search-bar" style="flex:1">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="Search videos…" oninput="filterVideos(this.value)">
+        </div>
+        <select onchange="filterVideoCat(this.value)" style="width:160px">
+          <option value="">All Categories</option>
+          <option>Infrastructure</option>
+          <option>GitHub</option>
+          <option>Portfolio</option>
+          <option>Strategy</option>
+          <option>Learning</option>
+        </select>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Date</th>
+                <th>Duration</th>
+                <th>Category</th>
+                <th>Usefulness</th>
+                <th>Tags</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="video-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== REPOS ===== -->
+    <div id="page-repos" class="page">
+      <div class="page-header">
+        <div>
+          <h2>Repository Tracker</h2>
+          <p>GitHub repository evolution and quality tracking.</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-primary" onclick="openModal('modal-repo')">+ Add Repository</button>
+        </div>
+      </div>
+
+      <div class="grid grid-2" id="repo-list"></div>
+    </div>
+
+    <!-- ===== RECRUITER READINESS ===== -->
+    <div id="page-recruiter" class="page">
+      <div class="page-header">
+        <div>
+          <h2>Recruiter Readiness</h2>
+          <p>Checklist and scoring for portfolio recruiter confidence.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-header"><h3>Readiness Checklist</h3></div>
+          <div class="card-body">
+            <div id="recruiter-checklist"></div>
+          </div>
+        </div>
+        <div>
+          <div class="card mb-16">
+            <div class="card-body">
+              <div style="text-align:center;padding:8px 0">
+                <div style="font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text-muted);margin-bottom:12px">Recruiter Confidence Score</div>
+                <div id="recruiter-score-circle" style="margin:0 auto 8px"></div>
+                <div id="recruiter-score-label" style="font-size:13px;color:var(--text-muted)"></div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>Score Breakdown</h3></div>
+            <div class="card-body" id="recruiter-breakdown"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== DOMAIN ===== -->
+    <div id="page-domain" class="page">
+      <div class="page-header">
+        <div>
+          <h2>Domain &amp; Infrastructure</h2>
+          <p>Hosting, DNS, SSL, and deployment tracking.</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-primary" onclick="openModal('modal-domain')">+ Add Domain</button>
+        </div>
+      </div>
+      <div id="domain-list"></div>
+    </div>
+
+    <!-- ===== DECISIONS ===== -->
+    <div id="page-decisions" class="page">
+      <div class="page-header">
+        <div>
+          <h2>Decision Log</h2>
+          <p>Strategic decisions with rationale and alternatives.</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-primary" onclick="openModal('modal-decision')">+ Log Decision</button>
+        </div>
+      </div>
+      <div class="grid grid-2" id="decision-list"></div>
+    </div>
+
+    <!-- ===== WEEKLY ===== -->
+    <div id="page-weekly" class="page">
+      <div class="page-header">
+        <div>
+          <h2>Weekly Evolution Review</h2>
+          <p>Week-by-week progress and retrospective log.</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-primary" onclick="openModal('modal-weekly')">+ Add Week</button>
+        </div>
+      </div>
+      <div id="weekly-list"></div>
+    </div>
+
+    <!-- ===== MATURITY ===== -->
+    <div id="page-maturity" class="page">
+      <div class="page-header">
+        <div>
+          <h2>Maturity Engine</h2>
+          <p>Adjust sliders to reflect current portfolio maturity across dimensions.</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-primary" onclick="saveMaturity()">Save Scores</button>
+        </div>
+      </div>
+
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-header"><h3>Maturity Dimensions</h3></div>
+          <div class="card-body" id="maturity-sliders"></div>
+        </div>
+        <div>
+          <div class="card mb-16">
+            <div class="card-body" style="text-align:center;padding:28px">
+              <div style="font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text-muted);margin-bottom:14px">Overall Portfolio Maturity</div>
+              <div id="maturity-overall-circle" style="margin:0 auto 10px"></div>
+              <div id="maturity-overall-label" style="font-size:13px;color:var(--text-muted);margin-top:8px"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>Score Breakdown</h3></div>
+            <div class="card-body" id="maturity-breakdown-bars"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ROADMAP ===== -->
+    <div id="page-roadmap" class="page">
+      <div class="page-header">
+        <div>
+          <h2>Future Roadmap</h2>
+          <p>Phase-by-phase portfolio build journey.</p>
+        </div>
+      </div>
+      <div id="roadmap-phases"></div>
+    </div>
+
+    <!-- ===== VERSIONS ===== -->
+    <div id="page-versions" class="page">
+      <div class="page-header">
+        <div>
+          <h2>Version History</h2>
+          <p>Portfolio evolution changelog.</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-primary" onclick="openModal('modal-version')">+ Add Version</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-body" id="version-list"></div>
+      </div>
+    </div>
+
+    <!-- ===== EXPORT ===== -->
+    <div id="page-export" class="page">
+      <div class="page-header">
+        <div>
+          <h2>Export / Import</h2>
+          <p>Backup, restore, and export portfolio evolution data.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-3">
+        <div class="card">
+          <div class="card-body" style="text-align:center;padding:28px">
+            <div style="font-size:32px;margin-bottom:12px">⬇️</div>
+            <h3 style="margin-bottom:6px;font-size:15px">Export JSON Backup</h3>
+            <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px">Full system data as JSON file for backup or migration.</p>
+            <button class="btn btn-primary full-width" onclick="exportJSON()">Export JSON</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body" style="text-align:center;padding:28px">
+            <div style="font-size:32px;margin-bottom:12px">⬆️</div>
+            <h3 style="margin-bottom:6px;font-size:15px">Import JSON Backup</h3>
+            <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px">Restore from a previously exported JSON backup.</p>
+            <input type="file" id="import-file" accept=".json" style="display:none" onchange="importJSON(event)">
+            <button class="btn btn-secondary full-width" onclick="document.getElementById('import-file').click()">Import JSON</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body" style="text-align:center;padding:28px">
+            <div style="font-size:32px;margin-bottom:12px">📄</div>
+            <h3 style="margin-bottom:6px;font-size:15px">Export Markdown Summary</h3>
+            <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px">Generate a formatted Markdown summary of portfolio status.</p>
+            <button class="btn btn-secondary full-width" onclick="exportMarkdown()">Export Markdown</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mt-16">
+        <div class="card-body" style="text-align:center;padding:28px">
+          <div style="font-size:32px;margin-bottom:12px">🗑️</div>
+          <h3 style="margin-bottom:6px;font-size:15px">Reset System</h3>
+          <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px">Clear all data and restore factory defaults. This cannot be undone.</p>
+          <button class="btn btn-danger" onclick="confirmReset()">Reset All Data</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ===== MODALS ===== -->
+
+<!-- Timeline Modal -->
+<div id="modal-timeline" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-timeline-title">Add Journey Entry</h3>
+      <button class="btn-close" onclick="closeModal('modal-timeline')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="tl-edit-idx" value="-1">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Date</label>
+          <input type="date" id="tl-date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select id="tl-cat">
+            <option>Infrastructure</option>
+            <option>GitHub</option>
+            <option>Documentation</option>
+            <option>Strategy</option>
+            <option>Deployment</option>
+            <option>Learning</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Activity Title</label>
+        <input type="text" id="tl-title" placeholder="Describe the activity…">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea id="tl-desc" placeholder="Details…"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Outcome</label>
+          <input type="text" id="tl-outcome" placeholder="What was achieved?">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Next Step</label>
+          <input type="text" id="tl-next" placeholder="What follows?">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Associated Repo</label>
+          <input type="text" id="tl-repo" placeholder="repo name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Associated Video</label>
+          <input type="text" id="tl-video" placeholder="video title">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select id="tl-status">
+            <option>Completed</option>
+            <option>In Progress</option>
+            <option>Planned</option>
+            <option>Blocked</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Priority</label>
+          <select id="tl-priority">
+            <option>High</option>
+            <option>Medium</option>
+            <option>Low</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-timeline')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveTimeline()">Save Entry</button>
+    </div>
+  </div>
+</div>
+
+<!-- Video Modal -->
+<div id="modal-video" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Add Video Recording</h3>
+      <button class="btn-close" onclick="closeModal('modal-video')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="vid-edit-idx" value="-1">
+      <div class="form-group">
+        <label class="form-label">Video Title</label>
+        <input type="text" id="vid-title" placeholder="Recording title…">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Recording Date</label>
+          <input type="date" id="vid-date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Duration (mins)</label>
+          <input type="number" id="vid-duration" placeholder="30">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select id="vid-cat">
+            <option>Infrastructure</option>
+            <option>GitHub</option>
+            <option>Portfolio</option>
+            <option>Strategy</option>
+            <option>Learning</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Replay Usefulness (1–5)</label>
+          <select id="vid-useful">
+            <option>5 – Essential</option>
+            <option>4 – High</option>
+            <option>3 – Medium</option>
+            <option>2 – Low</option>
+            <option>1 – Minimal</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Activity Covered</label>
+        <input type="text" id="vid-activity" placeholder="What was recorded?">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Learning Captured</label>
+        <textarea id="vid-learning" placeholder="Key learnings…"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Linked Repository</label>
+          <input type="text" id="vid-repo" placeholder="repo name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tags (comma-separated)</label>
+          <input type="text" id="vid-tags" placeholder="domain, infrastructure, dns">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <textarea id="vid-notes" placeholder="Additional notes…"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-video')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveVideo()">Save Video</button>
+    </div>
+  </div>
+</div>
+
+<!-- Repo Modal -->
+<div id="modal-repo" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Add Repository</h3>
+      <button class="btn-close" onclick="closeModal('modal-repo')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="repo-edit-idx" value="-1">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Repository Name</label>
+          <input type="text" id="repo-name" placeholder="my-repo-name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Visibility</label>
+          <select id="repo-visibility">
+            <option>Public</option>
+            <option>Private</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Purpose</label>
+        <textarea id="repo-purpose" placeholder="What is this repo for?"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Maturity Level</label>
+          <select id="repo-maturity">
+            <option>Seed</option>
+            <option>Early</option>
+            <option>Developing</option>
+            <option>Mature</option>
+            <option>Production</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">README Quality</label>
+          <select id="repo-readme">
+            <option>None</option>
+            <option>Basic</option>
+            <option>Good</option>
+            <option>Recruiter-Grade</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Documentation Status</label>
+          <select id="repo-docs">
+            <option>None</option>
+            <option>Partial</option>
+            <option>Complete</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Recruiter Usefulness</label>
+          <select id="repo-recruiter">
+            <option>High</option>
+            <option>Medium</option>
+            <option>Low</option>
+            <option>Not Applicable</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Architecture Status</label>
+        <select id="repo-arch">
+          <option>Not Started</option>
+          <option>In Progress</option>
+          <option>Documented</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Associated Whitepapers</label>
+        <input type="text" id="repo-papers" placeholder="paper titles…">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Future Roadmap</label>
+        <textarea id="repo-roadmap" placeholder="Plans for this repo…"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-repo')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveRepo()">Save Repository</button>
+    </div>
+  </div>
+</div>
+
+<!-- Domain Modal -->
+<div id="modal-domain" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Add Domain / Infrastructure</h3>
+      <button class="btn-close" onclick="closeModal('modal-domain')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="dom-edit-idx" value="-1">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Domain Name</label>
+          <input type="text" id="dom-name" placeholder="example.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Registrar</label>
+          <input type="text" id="dom-registrar" placeholder="Namecheap">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Purchase Status</label>
+          <select id="dom-status">
+            <option>Purchased</option>
+            <option>Pending</option>
+            <option>Configured</option>
+            <option>Live</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">DNS Setup</label>
+          <select id="dom-dns">
+            <option>Not Started</option>
+            <option>In Progress</option>
+            <option>Complete</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">GitHub Pages</label>
+          <select id="dom-ghpages">
+            <option>Not Setup</option>
+            <option>Setup</option>
+            <option>Live</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cloudflare</label>
+          <select id="dom-cf">
+            <option>Not Setup</option>
+            <option>Setup</option>
+            <option>Active</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">SSL Status</label>
+          <select id="dom-ssl">
+            <option>Not Active</option>
+            <option>Active</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Analytics</label>
+          <select id="dom-analytics">
+            <option>Not Setup</option>
+            <option>Setup</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email Setup</label>
+        <select id="dom-email">
+          <option>Not Setup</option>
+          <option>Forwarding Only</option>
+          <option>Full Setup</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <textarea id="dom-notes" placeholder="Additional infrastructure notes…"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-domain')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveDomain()">Save Domain</button>
+    </div>
+  </div>
+</div>
+
+<!-- Decision Modal -->
+<div id="modal-decision" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Log Strategic Decision</h3>
+      <button class="btn-close" onclick="closeModal('modal-decision')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="dec-edit-idx" value="-1">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Date</label>
+          <input type="date" id="dec-date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Impact</label>
+          <select id="dec-impact">
+            <option>High</option>
+            <option>Medium</option>
+            <option>Low</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Decision Title</label>
+        <input type="text" id="dec-title" placeholder="Summarize the decision…">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Why This Decision Was Taken</label>
+        <textarea id="dec-why" placeholder="Rationale…"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Alternatives Considered</label>
+        <textarea id="dec-alts" placeholder="What else was considered?"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Revisit Later?</label>
+          <select id="dec-revisit">
+            <option>No</option>
+            <option>Yes</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notes</label>
+          <input type="text" id="dec-notes" placeholder="Extra notes…">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-decision')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveDecision()">Save Decision</button>
+    </div>
+  </div>
+</div>
+
+<!-- Weekly Modal -->
+<div id="modal-weekly" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Add Weekly Review</h3>
+      <button class="btn-close" onclick="closeModal('modal-weekly')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="wk-edit-idx" value="-1">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Week Of (Date)</label>
+          <input type="date" id="wk-date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Recruiter Readiness Δ (%)</label>
+          <input type="number" id="wk-rr" placeholder="+5">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Accomplishments</label>
+        <textarea id="wk-accomplishments" placeholder="What was achieved this week?"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Blockers</label>
+        <textarea id="wk-blockers" placeholder="What slowed progress?"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Improvements</label>
+        <textarea id="wk-improvements" placeholder="What improved?"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Lessons Learned</label>
+        <textarea id="wk-lessons" placeholder="Key takeaways…"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Next Week Focus</label>
+        <textarea id="wk-focus" placeholder="Priorities for next week…"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-weekly')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveWeekly()">Save Review</button>
+    </div>
+  </div>
+</div>
+
+<!-- Version Modal -->
+<div id="modal-version" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Add Version</h3>
+      <button class="btn-close" onclick="closeModal('modal-version')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="ver-edit-idx" value="-1">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Version Tag</label>
+          <input type="text" id="ver-tag" placeholder="v0.5">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date</label>
+          <input type="date" id="ver-date">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Summary</label>
+        <input type="text" id="ver-summary" placeholder="Short description…">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Changes</label>
+        <textarea id="ver-changes" placeholder="What changed?"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Improvements</label>
+        <textarea id="ver-improvements" placeholder="What improved?"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Impact</label>
+        <textarea id="ver-impact" placeholder="Impact on recruiter readiness…"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-version')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveVersion()">Save Version</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== DATA STORE =====
+
+const STORE_KEY = 'pecr_v1';
+
+const DEFAULT_DATA = {
+  timeline: [
+    { date:'2025-05-01', title:'Decided to create separate recruiter-facing portfolio ecosystem', category:'Strategy', desc:'Recognized that mixing personal and professional repositories would dilute recruiter signal. Made the strategic decision to build a dedicated recruiter-facing ecosystem.', outcome:'Clear strategic direction established', next:'Select professional positioning', repo:'', video:'', status:'Completed', priority:'High' },
+    { date:'2025-05-02', title:'Selected professional positioning around reliability engineering', category:'Strategy', desc:'Evaluated multiple positioning angles: SDET, QA Lead, AI Testing Engineer. Chose QA + AI Reliability as the most differentiated and future-aligned angle for elite companies.', outcome:'Positioning defined: QA & AI Reliability Engineering', next:'Purchase professional domain', repo:'', video:'', status:'Completed', priority:'High' },
+    { date:'2025-05-03', title:'Purchased domain: prashantreliability.com', category:'Infrastructure', desc:'Researched domain options aligned with reliability engineering positioning. Selected prashantreliability.com as it communicates the professional identity clearly to technical recruiters.', outcome:'Domain purchased via Namecheap', next:'Configure domain privacy protection', repo:'', video:'Domain Purchase Journey – prashantreliability.com', status:'Completed', priority:'High' },
+    { date:'2025-05-03', title:'Configured domain privacy protection', category:'Infrastructure', desc:'Enabled WHOIS privacy to keep personal details hidden from public domain registration records. Best practice for professional domain management.', outcome:'Privacy protection active', next:'Create professional GitHub structure', repo:'', video:'', status:'Completed', priority:'Medium' },
+    { date:'2025-05-04', title:'Created professional GitHub structure', category:'GitHub', desc:'Audited existing GitHub profile. Pinned relevant repositories. Updated bio to reflect reliability engineering positioning. Set professional avatar and contact information.', outcome:'GitHub profile structured for recruiter readiness', next:'Create first portfolio repository', repo:'', video:'', status:'Completed', priority:'High' },
+    { date:'2025-05-05', title:'Created repository: qa-ai-reliability-portfolio', category:'GitHub', desc:'Initialized the primary portfolio repository with proper directory structure, license, and initial README placeholder. This is the flagship repository for the recruiter portfolio.', outcome:'Repository live on GitHub', next:'Update recruiter-grade README', repo:'qa-ai-reliability-portfolio', video:'', status:'Completed', priority:'High' },
+    { date:'2025-05-06', title:'Updated recruiter-grade README', category:'Documentation', desc:'Wrote a comprehensive README following recruiter-grade standards: clear positioning statement, proof architecture section, technology matrix, and contact structure.', outcome:'README approved as recruiter-ready', next:'Set up Portfolio Evolution Control Room', repo:'qa-ai-reliability-portfolio', video:'', status:'Completed', priority:'High' },
+    { date:'2025-05-07', title:'Started portfolio evolution tracking system', category:'Strategy', desc:'Built this control room to track the complete portfolio build journey, preserve learning, and create strategic traceability across every decision and milestone.', outcome:'Control room operational', next:'Configure domain DNS and GitHub Pages', repo:'', video:'', status:'Completed', priority:'High' }
+  ],
+  videos: [
+    { title:'Domain Purchase Journey – prashantreliability.com', date:'2025-05-03', duration:45, category:'Infrastructure', useful:'5 – Essential', activity:'Complete domain purchase process from search to privacy configuration', learning:'How to search, evaluate, purchase, and strategically position a recruiter-facing professional domain. Covers Namecheap workflow, domain privacy, and naming strategy.', repo:'', tags:'domain, infrastructure, namecheap, privacy', notes:'Highly reusable for any future domain purchases or for instructing others.' }
+  ],
+  repos: [
+    { name:'qa-ai-reliability-portfolio', purpose:'Primary recruiter-facing portfolio repository demonstrating QA engineering, AI reliability testing frameworks, and professional positioning.', visibility:'Public', maturity:'Early', readme:'Recruiter-Grade', docs:'Partial', arch:'Not Started', recruiter:'High', papers:'', roadmap:'Add whitepapers, case studies, framework documentation, and automated testing demos.' }
+  ],
+  recruiterChecklist: [
+    { label:'Professional domain acquired', checked: true },
+    { label:'GitHub profile structured', checked: true },
+    { label:'README optimized for recruiters', checked: true },
+    { label:'Portfolio architecture defined', checked: false },
+    { label:'Whitepapers available', checked: false },
+    { label:'Frameworks documented', checked: false },
+    { label:'Mobile responsive portfolio website', checked: false },
+    { label:'Recruiter brief available', checked: false },
+    { label:'Case studies added', checked: false },
+    { label:'Contact structure defined', checked: false },
+    { label:'Public positioning clean', checked: true },
+    { label:'No immature exposure visible', checked: true },
+    { label:'Strong proof systems in place', checked: false }
+  ],
+  domains: [
+    { name:'prashantreliability.com', registrar:'Namecheap', status:'Purchased', dns:'Not Started', ghpages:'Not Setup', cf:'Not Setup', ssl:'Not Active', analytics:'Not Setup', email:'Not Setup', notes:'Primary recruiter-facing domain. Privacy protection enabled.' }
+  ],
+  decisions: [
+    { date:'2025-05-01', title:'Keep immature company ecosystems private', why:'Exposing early-stage, internal, or proof-of-concept repositories to recruiters would reduce perceived professionalism and maturity.', alts:'Keep all repos public; use separate account', impact:'High', revisit:'No', notes:'Non-negotiable. Applies always.' },
+    { date:'2025-05-01', title:'Create separate recruiter-facing portfolio', why:'Mixing personal learning repos with professional portfolio dilutes signal quality. Recruiters need a curated, high-signal view.', alts:'Single GitHub account for everything', impact:'High', revisit:'No', notes:'Core strategic pillar.' },
+    { date:'2025-05-02', title:'Focus on reliability engineering positioning', why:'QA + AI Reliability is a differentiated angle for elite companies (Google, Anthropic, OpenAI, NVIDIA). Pure QA is commoditized.', alts:'SDET positioning; AI Testing Engineer; General QA', impact:'High', revisit:'Yes', notes:'Revisit if market signals shift.' },
+    { date:'2025-05-03', title:'Build proof architecture instead of resume-only profile', why:'Elite companies require demonstrated engineering ability, not self-reported claims. GitHub repositories, whitepapers, and frameworks serve as verifiable proof.', alts:'Focus only on resume optimization', impact:'High', revisit:'No', notes:'This is the foundational philosophy of the entire ecosystem.' }
+  ],
+  weekly: [],
+  maturity: {
+    professionalism: 55,
+    clarity: 60,
+    engineeringMaturity: 40,
+    recruiterTrust: 45,
+    githubProof: 35,
+    architectureQuality: 25,
+    documentationQuality: 50,
+    reliabilityPositioning: 60,
+    publicReadiness: 30
+  },
+  roadmap: [
+    { phase:'Phase 1', title:'Infrastructure Foundation', pct:70, status:'In Progress', next:'Configure DNS and GitHub Pages', blockers:'', outcome:'Professional domain live, GitHub structured, portfolio repo created' },
+    { phase:'Phase 2', title:'Portfolio Architecture', pct:20, status:'Not Started', next:'Define repository structure and proof architecture', blockers:'', outcome:'Clear repository hierarchy and proof system defined' },
+    { phase:'Phase 3', title:'Whitepapers', pct:0, status:'Not Started', next:'Draft first whitepaper on AI testing reliability', blockers:'Phase 2 must complete first', outcome:'2-3 recruiter-ready whitepapers published' },
+    { phase:'Phase 4', title:'Frameworks', pct:0, status:'Not Started', next:'Design QA reliability framework', blockers:'Phase 2 must complete', outcome:'Original frameworks documented with diagrams' },
+    { phase:'Phase 5', title:'Recruiter Experience', pct:10, status:'Planning', next:'Design portfolio website UX', blockers:'', outcome:'Polished, mobile-responsive recruiter-facing website' },
+    { phase:'Phase 6', title:'Deployment & Hosting', pct:5, status:'Planning', next:'Configure GitHub Pages with custom domain', blockers:'DNS setup pending', outcome:'Live at prashantreliability.com with SSL' },
+    { phase:'Phase 7', title:'Public Launch', pct:0, status:'Not Started', next:'TBD after Phases 1-6 complete', blockers:'All prior phases', outcome:'Fully public recruiter-ready portfolio ecosystem' },
+    { phase:'Phase 8', title:'Continuous Evolution', pct:0, status:'Future', next:'Set up monthly review cadence', blockers:'Requires Phase 7', outcome:'Ongoing portfolio quality improvement system' }
+  ],
+  versions: [
+    { tag:'v0.1', date:'2025-05-03', summary:'Domain acquired', changes:'Purchased prashantreliability.com via Namecheap with privacy protection.', improvements:'Professional identity foundation established.', impact:'Enables professional web presence for recruiters.' },
+    { tag:'v0.2', date:'2025-05-04', summary:'GitHub profile structured', changes:'Updated GitHub bio, pinned repositories, set professional positioning.', improvements:'Recruiter-grade GitHub profile presentation.', impact:'Improved first-impression signal for technical recruiters.' },
+    { tag:'v0.3', date:'2025-05-05', summary:'Initial repository created', changes:'Created qa-ai-reliability-portfolio repository with structure and license.', improvements:'Flagship portfolio repository initialized.', impact:'Core proof vehicle established.' },
+    { tag:'v0.4', date:'2025-05-06', summary:'Recruiter-grade README added', changes:'Wrote comprehensive positioning README with proof architecture section.', improvements:'Repository communicates professional positioning clearly.', impact:'Significant recruiter readiness improvement for primary repo.' }
+  ]
+};
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return JSON.parse(JSON.stringify(DEFAULT_DATA));
+}
+
+function saveData() {
+  localStorage.setItem(STORE_KEY, JSON.stringify(DB));
+}
+
+let DB = loadData();
+
+// ===== NAVIGATION =====
+
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'" + page + "'")) {
+      n.classList.add('active');
+    }
+  });
+  renderPage(page);
+  // close sidebar on mobile
+  if (window.innerWidth <= 900) document.getElementById('sidebar').classList.remove('open');
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+function renderPage(page) {
+  if (page === 'dashboard') renderDashboard();
+  else if (page === 'timeline') renderTimeline();
+  else if (page === 'videos') renderVideos();
+  else if (page === 'repos') renderRepos();
+  else if (page === 'recruiter') renderRecruiter();
+  else if (page === 'domain') renderDomains();
+  else if (page === 'decisions') renderDecisions();
+  else if (page === 'weekly') renderWeekly();
+  else if (page === 'maturity') renderMaturity();
+  else if (page === 'roadmap') renderRoadmap();
+  else if (page === 'versions') renderVersions();
+}
+
+// ===== MODAL =====
+
+function openModal(id) {
+  document.getElementById(id).style.display = 'flex';
+}
+
+function closeModal(id) {
+  document.getElementById(id).style.display = 'none';
+  // Reset edit index
+  const eIdx = document.querySelector('#' + id + ' [id$="-edit-idx"]');
+  if (eIdx) { eIdx.value = '-1'; }
+  document.getElementById('modal-timeline-title') && (document.getElementById('modal-timeline-title').textContent = 'Add Journey Entry');
+}
+
+// Close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', function(e) { if (e.target === this) closeModal(this.id); });
+});
+
+// ===== PROGRESS CIRCLE SVG =====
+
+function makeCircle(pct, color='#2563eb', size=80) {
+  const r = (size - 10) / 2;
+  const circ = 2 * Math.PI * r;
+  const dash = (pct / 100) * circ;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="#e4e8ef" stroke-width="8"/>
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${color}" stroke-width="8"
+      stroke-dasharray="${dash} ${circ}" stroke-dashoffset="0"
+      stroke-linecap="round" transform="rotate(-90 ${size/2} ${size/2})"/>
+    <text x="${size/2}" y="${size/2}" text-anchor="middle" dominant-baseline="central"
+      font-family="DM Mono, monospace" font-size="${size < 70 ? 11 : 14}" font-weight="600" fill="#1a2033">${pct}%</text>
+  </svg>`;
+}
+
+function statusBadge(s) {
+  const m = {
+    'Completed':'badge-green', 'Complete':'badge-green', 'Live':'badge-green', 'Active':'badge-green',
+    'In Progress':'badge-blue', 'Planning':'badge-blue', 'Setup':'badge-blue',
+    'Not Started':'badge-gray', 'Not Setup':'badge-gray', 'None':'badge-gray', 'Not Active':'badge-gray',
+    'Blocked':'badge-red',
+    'Planned':'badge-amber', 'Pending':'badge-amber', 'Partial':'badge-amber', 'Future':'badge-amber',
+    'Public':'badge-green', 'Private':'badge-amber',
+    'High':'badge-red', 'Medium':'badge-amber', 'Low':'badge-gray',
+    'Seed':'badge-gray','Early':'badge-amber','Developing':'badge-blue','Mature':'badge-green','Production':'badge-green',
+    'Recruiter-Grade':'badge-green','Good':'badge-blue','Basic':'badge-amber',
+    'Documented':'badge-green','Forwarding Only':'badge-amber','Full Setup':'badge-green'
+  };
+  const cls = m[s] || 'badge-gray';
+  return `<span class="badge ${cls}">${s}</span>`;
+}
+
+// ===== DASHBOARD =====
+
+function renderDashboard() {
+  const tl = DB.timeline;
+  const completed = tl.filter(t => t.status === 'Completed').length;
+  const checklist = DB.recruiterChecklist;
+  const rrPct = Math.round((checklist.filter(c => c.checked).length / checklist.length) * 100);
+  const mat = DB.maturity;
+  const matVals = Object.values(mat);
+  const matScore = Math.round(matVals.reduce((a,b) => a+b, 0) / matVals.length);
+  const roadmapAvg = Math.round(DB.roadmap.reduce((a,r) => a + r.pct, 0) / DB.roadmap.length);
+  const domainPct = DB.domains.length > 0 ? 50 : 0;
+
+  const stats = [
+    { label:'Total Activities', value: tl.length, sub:'Journey entries', bar: Math.min(tl.length * 5, 100), color:'accent' },
+    { label:'Completed', value: completed, sub:`of ${tl.length} activities`, bar: tl.length ? Math.round(completed/tl.length*100) : 0, color:'green' },
+    { label:'Video Recordings', value: DB.videos.length, sub:'Knowledge captured', bar: Math.min(DB.videos.length * 10, 100), color:'accent' },
+    { label:'Repositories', value: DB.repos.length, sub:'GitHub repos tracked', bar: Math.min(DB.repos.length * 20, 100), color:'accent' },
+    { label:'Portfolio Maturity', value: matScore + '%', sub:'Across 9 dimensions', bar: matScore, color: matScore > 60 ? 'green' : 'amber' },
+    { label:'Recruiter Readiness', value: rrPct + '%', sub:`${checklist.filter(c=>c.checked).length}/${checklist.length} items`, bar: rrPct, color: rrPct > 70 ? 'green' : 'amber' },
+    { label:'Roadmap Progress', value: roadmapAvg + '%', sub:'8 phases total', bar: roadmapAvg, color:'accent' },
+    { label:'Domain Progress', value: DB.domains.length > 0 ? 'Active' : 'None', sub: DB.domains.length > 0 ? DB.domains[0].name : 'No domain added', bar: domainPct, color:'green' },
+    { label:'Strategic Decisions', value: DB.decisions.length, sub:'Logged decisions', bar: Math.min(DB.decisions.length * 10, 100), color:'accent' },
+    { label:'Versions Released', value: DB.versions.length, sub:'Changelog entries', bar: Math.min(DB.versions.length * 15, 100), color:'accent' },
+    { label:'Whitepapers', value: 0, sub:'Coming soon', bar: 0, color:'amber' },
+    { label:'Public Readiness', value: roadmapAvg > 60 ? 'Good' : 'Building', sub:'Based on roadmap avg', bar: roadmapAvg, color: roadmapAvg > 60 ? 'green' : 'amber' }
+  ];
+
+  document.getElementById('dash-stats').innerHTML = stats.map(s => `
+    <div class="stat-card">
+      <div class="stat-label">${s.label}</div>
+      <div class="stat-value">${s.value}</div>
+      <div class="stat-sub">${s.sub}</div>
+      <div class="stat-bar"><div class="stat-bar-fill ${s.color}" style="width:${s.bar}%"></div></div>
+    </div>
+  `).join('');
+
+  // Maturity breakdown
+  const matKeys = Object.keys(mat);
+  const matLabels = { professionalism:'Professionalism', clarity:'Clarity', engineeringMaturity:'Engineering Maturity', recruiterTrust:'Recruiter Trust', githubProof:'GitHub Proof', architectureQuality:'Architecture Quality', documentationQuality:'Documentation Quality', reliabilityPositioning:'Reliability Positioning', publicReadiness:'Public Readiness' };
+  document.getElementById('dash-maturity-scores').innerHTML = matKeys.map(k => `
+    <div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+        <span style="font-size:12px;color:var(--text-secondary)">${matLabels[k] || k}</span>
+        <span style="font-size:12px;font-weight:600;font-family:var(--mono);color:var(--accent)">${mat[k]}</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill ${mat[k] >= 70 ? 'green' : mat[k] >= 40 ? '' : 'amber'}" style="width:${mat[k]}%"></div></div>
+    </div>
+  `).join('');
+
+  // Roadmap progress
+  document.getElementById('dash-roadmap-progress').innerHTML = DB.roadmap.map(p => `
+    <div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+        <span style="font-size:12px;color:var(--text-secondary)">${p.phase}: ${p.title}</span>
+        <span style="font-size:12px;font-weight:600;font-family:var(--mono);color:var(--accent)">${p.pct}%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill ${p.pct >= 80 ? 'green' : ''}" style="width:${p.pct}%"></div></div>
+    </div>
+  `).join('');
+
+  // Recent
+  const recent = [...DB.timeline].reverse().slice(0, 5);
+  document.getElementById('dash-recent').innerHTML = recent.length ? recent.map(t => `
+    <div style="padding:8px 0;border-bottom:1px solid var(--border)">
+      <div style="font-size:13px;font-weight:500">${t.title}</div>
+      <div style="display:flex;gap:8px;margin-top:4px;align-items:center">
+        ${statusBadge(t.status)}
+        <span style="font-size:11px;color:var(--text-muted)">${t.date}</span>
+        <span class="badge badge-gray">${t.category}</span>
+      </div>
+    </div>
+  `).join('') : '<div class="empty-state"><p>No activities yet.</p></div>';
+
+  // Next actions
+  const nextActions = DB.timeline.filter(t => t.status !== 'Completed' && t.next).concat(
+    DB.timeline.filter(t => t.status === 'Completed' && t.next).slice(-3)
+  );
+  document.getElementById('dash-next').innerHTML = nextActions.length ? nextActions.slice(0,5).map(t => `
+    <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:16px;margin-top:1px">→</span>
+      <div>
+        <div style="font-size:13px;font-weight:500">${t.next}</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px">From: ${t.title}</div>
+      </div>
+    </div>
+  `).join('') : '<div class="empty-state"><p>No next steps defined.</p></div>';
+}
+
+// ===== TIMELINE =====
+
+let tlFilter = { search: '', cat: '' };
+
+function renderTimeline() {
+  let items = DB.timeline.filter(t => {
+    const s = tlFilter.search.toLowerCase();
+    const matchSearch = !s || t.title.toLowerCase().includes(s) || t.desc.toLowerCase().includes(s);
+    const matchCat = !tlFilter.cat || t.category === tlFilter.cat;
+    return matchSearch && matchCat;
+  });
+
+  document.getElementById('timeline-list').innerHTML = items.length ? items.map((t, idx) => `
+    <div class="timeline-item">
+      <div class="timeline-dot ${t.status === 'Completed' ? 'done' : t.status === 'Planned' ? 'pending' : ''}"></div>
+      <div class="timeline-card">
+        <div class="timeline-card-header">
+          <div>
+            <div class="timeline-card-title">${t.title}</div>
+            <div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap">
+              ${statusBadge(t.status)} ${statusBadge(t.priority)} <span class="badge badge-gray">${t.category}</span>
+            </div>
+          </div>
+          <div style="text-align:right">
+            <div class="timeline-date">${t.date}</div>
+            <div style="margin-top:6px;display:flex;gap:4px">
+              <button class="btn btn-secondary btn-sm" onclick="editTimeline(${DB.timeline.indexOf(t)})">Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteTimeline(${DB.timeline.indexOf(t)})">Del</button>
+            </div>
+          </div>
+        </div>
+        ${t.desc ? `<p style="font-size:12.5px;color:var(--text-secondary);margin-top:8px">${t.desc}</p>` : ''}
+        ${t.outcome ? `<div style="margin-top:8px"><span style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Outcome: </span><span style="font-size:12px">${t.outcome}</span></div>` : ''}
+        ${t.next ? `<div style="margin-top:4px"><span style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Next: </span><span style="font-size:12px">${t.next}</span></div>` : ''}
+        ${(t.repo || t.video) ? `<div style="margin-top:8px;display:flex;gap:8px">
+          ${t.repo ? `<span class="badge badge-blue">📁 ${t.repo}</span>` : ''}
+          ${t.video ? `<span class="badge badge-gray">🎥 ${t.video}</span>` : ''}
+        </div>` : ''}
+      </div>
+    </div>
+  `).join('') : '<div class="empty-state"><div class="empty-icon">📋</div><p>No timeline entries match the filter.</p></div>';
+}
+
+function filterTimeline(v) { tlFilter.search = v; renderTimeline(); }
+function filterTimelineCat(v) { tlFilter.cat = v; renderTimeline(); }
+
+function saveTimeline() {
+  const idx = parseInt(document.getElementById('tl-edit-idx').value);
+  const entry = {
+    date: document.getElementById('tl-date').value || new Date().toISOString().split('T')[0],
+    title: document.getElementById('tl-title').value || 'Untitled',
+    category: document.getElementById('tl-cat').value,
+    desc: document.getElementById('tl-desc').value,
+    outcome: document.getElementById('tl-outcome').value,
+    next: document.getElementById('tl-next').value,
+    repo: document.getElementById('tl-repo').value,
+    video: document.getElementById('tl-video').value,
+    status: document.getElementById('tl-status').value,
+    priority: document.getElementById('tl-priority').value
+  };
+  if (idx >= 0) DB.timeline[idx] = entry;
+  else DB.timeline.push(entry);
+  saveData();
+  closeModal('modal-timeline');
+  renderTimeline();
+}
+
+function editTimeline(idx) {
+  const t = DB.timeline[idx];
+  document.getElementById('tl-edit-idx').value = idx;
+  document.getElementById('modal-timeline-title').textContent = 'Edit Journey Entry';
+  document.getElementById('tl-date').value = t.date;
+  document.getElementById('tl-title').value = t.title;
+  document.getElementById('tl-cat').value = t.category;
+  document.getElementById('tl-desc').value = t.desc;
+  document.getElementById('tl-outcome').value = t.outcome;
+  document.getElementById('tl-next').value = t.next;
+  document.getElementById('tl-repo').value = t.repo;
+  document.getElementById('tl-video').value = t.video;
+  document.getElementById('tl-status').value = t.status;
+  document.getElementById('tl-priority').value = t.priority;
+  openModal('modal-timeline');
+}
+
+function deleteTimeline(idx) {
+  if (confirm('Delete this timeline entry?')) {
+    DB.timeline.splice(idx, 1);
+    saveData();
+    renderTimeline();
+  }
+}
+
+// ===== VIDEOS =====
+
+let vidFilter = { search: '', cat: '' };
+
+function renderVideos() {
+  const vids = DB.videos.filter(v => {
+    const s = vidFilter.search.toLowerCase();
+    return (!s || v.title.toLowerCase().includes(s) || v.activity.toLowerCase().includes(s)) &&
+           (!vidFilter.cat || v.category === vidFilter.cat);
+  });
+
+  document.getElementById('video-table').innerHTML = vids.length ? vids.map((v, i) => {
+    const tags = v.tags ? v.tags.split(',').map(t => `<span class="badge badge-gray">${t.trim()}</span>`).join(' ') : '';
+    return `<tr>
+      <td><strong>${v.title}</strong>${v.notes ? `<br><span class="text-muted">${v.notes.substring(0,60)}…</span>` : ''}</td>
+      <td class="text-mono" style="font-size:12px">${v.date}</td>
+      <td>${v.duration ? v.duration + ' min' : '—'}</td>
+      <td>${statusBadge(v.category)}</td>
+      <td><span class="badge badge-${v.useful.startsWith('5') || v.useful.startsWith('4') ? 'green' : 'amber'}">${v.useful.split('–')[0].trim()}</span></td>
+      <td style="max-width:160px">${tags}</td>
+      <td>
+        <button class="btn btn-secondary btn-sm" onclick="editVideo(${DB.videos.indexOf(v)})">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteVideo(${DB.videos.indexOf(v)})">Del</button>
+      </td>
+    </tr>`;
+  }).join('') : `<tr><td colspan="7"><div class="empty-state"><p>No videos recorded yet.</p></div></td></tr>`;
+}
+
+function filterVideos(v) { vidFilter.search = v; renderVideos(); }
+function filterVideoCat(v) { vidFilter.cat = v; renderVideos(); }
+
+function saveVideo() {
+  const idx = parseInt(document.getElementById('vid-edit-idx').value);
+  const entry = {
+    title: document.getElementById('vid-title').value || 'Untitled Recording',
+    date: document.getElementById('vid-date').value,
+    duration: document.getElementById('vid-duration').value,
+    category: document.getElementById('vid-cat').value,
+    useful: document.getElementById('vid-useful').value,
+    activity: document.getElementById('vid-activity').value,
+    learning: document.getElementById('vid-learning').value,
+    repo: document.getElementById('vid-repo').value,
+    tags: document.getElementById('vid-tags').value,
+    notes: document.getElementById('vid-notes').value
+  };
+  if (idx >= 0) DB.videos[idx] = entry;
+  else DB.videos.push(entry);
+  saveData();
+  closeModal('modal-video');
+  renderVideos();
+}
+
+function editVideo(idx) {
+  const v = DB.videos[idx];
+  document.getElementById('vid-edit-idx').value = idx;
+  document.getElementById('vid-title').value = v.title;
+  document.getElementById('vid-date').value = v.date;
+  document.getElementById('vid-duration').value = v.duration;
+  document.getElementById('vid-cat').value = v.category;
+  document.getElementById('vid-useful').value = v.useful;
+  document.getElementById('vid-activity').value = v.activity;
+  document.getElementById('vid-learning').value = v.learning;
+  document.getElementById('vid-repo').value = v.repo;
+  document.getElementById('vid-tags').value = v.tags;
+  document.getElementById('vid-notes').value = v.notes;
+  openModal('modal-video');
+}
+
+function deleteVideo(idx) {
+  if (confirm('Delete this video entry?')) { DB.videos.splice(idx, 1); saveData(); renderVideos(); }
+}
+
+// ===== REPOS =====
+
+function renderRepos() {
+  document.getElementById('repo-list').innerHTML = DB.repos.length ? DB.repos.map((r, i) => `
+    <div class="card">
+      <div class="card-header">
+        <h3>📁 ${r.name}</h3>
+        <div style="display:flex;gap:4px">
+          ${statusBadge(r.visibility)}
+          ${statusBadge(r.maturity)}
+        </div>
+      </div>
+      <div class="card-body">
+        <p style="font-size:12.5px;color:var(--text-secondary);margin-bottom:12px">${r.purpose}</p>
+        <div class="info-row"><span class="info-key">README Quality</span><span class="info-val">${r.readme}</span></div>
+        <div class="info-row"><span class="info-key">Documentation</span><span class="info-val">${r.docs}</span></div>
+        <div class="info-row"><span class="info-key">Architecture</span><span class="info-val">${r.arch}</span></div>
+        <div class="info-row"><span class="info-key">Recruiter Usefulness</span>${statusBadge(r.recruiter)}</div>
+        ${r.papers ? `<div class="info-row"><span class="info-key">Whitepapers</span><span class="info-val">${r.papers}</span></div>` : ''}
+        ${r.roadmap ? `<div class="mt-8"><div class="text-muted" style="margin-bottom:4px">Roadmap</div><p style="font-size:12px">${r.roadmap}</p></div>` : ''}
+        <div style="display:flex;gap:6px;margin-top:14px">
+          <button class="btn btn-secondary btn-sm" onclick="editRepo(${i})">Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteRepo(${i})">Delete</button>
+        </div>
+      </div>
+    </div>
+  `).join('') : '<div class="empty-state"><div class="empty-icon">📁</div><p>No repositories tracked yet.</p></div>';
+}
+
+function saveRepo() {
+  const idx = parseInt(document.getElementById('repo-edit-idx').value);
+  const entry = {
+    name: document.getElementById('repo-name').value || 'unnamed-repo',
+    purpose: document.getElementById('repo-purpose').value,
+    visibility: document.getElementById('repo-visibility').value,
+    maturity: document.getElementById('repo-maturity').value,
+    readme: document.getElementById('repo-readme').value,
+    docs: document.getElementById('repo-docs').value,
+    arch: document.getElementById('repo-arch').value,
+    recruiter: document.getElementById('repo-recruiter').value,
+    papers: document.getElementById('repo-papers').value,
+    roadmap: document.getElementById('repo-roadmap').value
+  };
+  if (idx >= 0) DB.repos[idx] = entry;
+  else DB.repos.push(entry);
+  saveData();
+  closeModal('modal-repo');
+  renderRepos();
+}
+
+function editRepo(idx) {
+  const r = DB.repos[idx];
+  document.getElementById('repo-edit-idx').value = idx;
+  document.getElementById('repo-name').value = r.name;
+  document.getElementById('repo-purpose').value = r.purpose;
+  document.getElementById('repo-visibility').value = r.visibility;
+  document.getElementById('repo-maturity').value = r.maturity;
+  document.getElementById('repo-readme').value = r.readme;
+  document.getElementById('repo-docs').value = r.docs;
+  document.getElementById('repo-arch').value = r.arch;
+  document.getElementById('repo-recruiter').value = r.recruiter;
+  document.getElementById('repo-papers').value = r.papers;
+  document.getElementById('repo-roadmap').value = r.roadmap;
+  openModal('modal-repo');
+}
+
+function deleteRepo(idx) {
+  if (confirm('Delete this repository?')) { DB.repos.splice(idx, 1); saveData(); renderRepos(); }
+}
+
+// ===== RECRUITER READINESS =====
+
+function renderRecruiter() {
+  const items = DB.recruiterChecklist;
+  document.getElementById('recruiter-checklist').innerHTML = items.map((item, i) => `
+    <div class="checklist-item" onclick="toggleCheck(${i})">
+      <div class="check-box ${item.checked ? 'checked' : ''}">
+        ${item.checked ? '✓' : ''}
+      </div>
+      <span class="check-label ${item.checked ? 'checked' : ''}">${item.label}</span>
+    </div>
+  `).join('');
+
+  const checked = items.filter(c => c.checked).length;
+  const pct = Math.round((checked / items.length) * 100);
+  const color = pct >= 80 ? '#16a34a' : pct >= 50 ? '#2563eb' : '#d97706';
+  document.getElementById('recruiter-score-circle').innerHTML = makeCircle(pct, color, 100);
+  document.getElementById('recruiter-score-label').textContent = pct >= 80 ? 'High Confidence' : pct >= 50 ? 'Developing' : 'Early Stage';
+
+  const breakdown = [
+    { label: 'Online Presence', items: items.slice(0, 3) },
+    { label: 'Content Quality', items: items.slice(3, 8) },
+    { label: 'Positioning', items: items.slice(8, 13) }
+  ];
+
+  document.getElementById('recruiter-breakdown').innerHTML = breakdown.map(b => {
+    const bPct = Math.round(b.items.filter(i => i.checked).length / b.items.length * 100);
+    return `<div style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span style="font-size:12px;font-weight:500">${b.label}</span>
+        <span style="font-size:12px;font-family:var(--mono);color:var(--accent)">${bPct}%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill ${bPct >= 70 ? 'green' : ''}" style="width:${bPct}%"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function toggleCheck(idx) {
+  DB.recruiterChecklist[idx].checked = !DB.recruiterChecklist[idx].checked;
+  saveData();
+  renderRecruiter();
+}
+
+// ===== DOMAINS =====
+
+function renderDomains() {
+  document.getElementById('domain-list').innerHTML = DB.domains.length ? DB.domains.map((d, i) => `
+    <div class="card mb-16">
+      <div class="card-header">
+        <h3>🌐 ${d.name}</h3>
+        <div style="display:flex;gap:6px">
+          ${statusBadge(d.status)}
+          <button class="btn btn-secondary btn-sm" onclick="editDomain(${i})">Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteDomain(${i})">Delete</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="grid grid-2">
+          <div>
+            <div class="info-row"><span class="info-key">Registrar</span><span class="info-val">${d.registrar}</span></div>
+            <div class="info-row"><span class="info-key">Purchase Status</span>${statusBadge(d.status)}</div>
+            <div class="info-row"><span class="info-key">DNS Setup</span>${statusBadge(d.dns)}</div>
+            <div class="info-row"><span class="info-key">SSL</span>${statusBadge(d.ssl)}</div>
+          </div>
+          <div>
+            <div class="info-row"><span class="info-key">GitHub Pages</span>${statusBadge(d.ghpages)}</div>
+            <div class="info-row"><span class="info-key">Cloudflare</span>${statusBadge(d.cf)}</div>
+            <div class="info-row"><span class="info-key">Analytics</span>${statusBadge(d.analytics)}</div>
+            <div class="info-row"><span class="info-key">Email Setup</span>${statusBadge(d.email)}</div>
+          </div>
+        </div>
+        ${d.notes ? `<div class="mt-8" style="padding-top:8px;border-top:1px solid var(--border)"><span class="text-muted">Notes: </span>${d.notes}</div>` : ''}
+      </div>
+    </div>
+  `).join('') : `<div class="empty-state"><div class="empty-icon">🌐</div><p>No domains added yet.</p><button class="btn btn-primary mt-16" onclick="openModal('modal-domain')">Add First Domain</button></div>`;
+}
+
+function saveDomain() {
+  const idx = parseInt(document.getElementById('dom-edit-idx').value);
+  const entry = {
+    name: document.getElementById('dom-name').value,
+    registrar: document.getElementById('dom-registrar').value,
+    status: document.getElementById('dom-status').value,
+    dns: document.getElementById('dom-dns').value,
+    ghpages: document.getElementById('dom-ghpages').value,
+    cf: document.getElementById('dom-cf').value,
+    ssl: document.getElementById('dom-ssl').value,
+    analytics: document.getElementById('dom-analytics').value,
+    email: document.getElementById('dom-email').value,
+    notes: document.getElementById('dom-notes').value
+  };
+  if (idx >= 0) DB.domains[idx] = entry;
+  else DB.domains.push(entry);
+  saveData();
+  closeModal('modal-domain');
+  renderDomains();
+}
+
+function editDomain(idx) {
+  const d = DB.domains[idx];
+  document.getElementById('dom-edit-idx').value = idx;
+  document.getElementById('dom-name').value = d.name;
+  document.getElementById('dom-registrar').value = d.registrar;
+  document.getElementById('dom-status').value = d.status;
+  document.getElementById('dom-dns').value = d.dns;
+  document.getElementById('dom-ghpages').value = d.ghpages;
+  document.getElementById('dom-cf').value = d.cf;
+  document.getElementById('dom-ssl').value = d.ssl;
+  document.getElementById('dom-analytics').value = d.analytics;
+  document.getElementById('dom-email').value = d.email;
+  document.getElementById('dom-notes').value = d.notes;
+  openModal('modal-domain');
+}
+
+function deleteDomain(idx) {
+  if (confirm('Delete this domain?')) { DB.domains.splice(idx, 1); saveData(); renderDomains(); }
+}
+
+// ===== DECISIONS =====
+
+function renderDecisions() {
+  document.getElementById('decision-list').innerHTML = DB.decisions.length ? DB.decisions.map((d, i) => `
+    <div class="card">
+      <div class="card-header">
+        <h3>${d.title}</h3>
+        ${statusBadge(d.impact)}
+      </div>
+      <div class="card-body">
+        <div class="text-muted mb-8">${d.date}</div>
+        <div style="margin-bottom:10px"><div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Why</div><p style="font-size:12.5px">${d.why}</p></div>
+        <div style="margin-bottom:10px"><div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Alternatives</div><p style="font-size:12.5px">${d.alts}</p></div>
+        ${d.notes ? `<div class="text-muted">${d.notes}</div>` : ''}
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px">
+          <span class="badge ${d.revisit === 'Yes' ? 'badge-amber' : 'badge-gray'}">Revisit: ${d.revisit}</span>
+          <div style="display:flex;gap:4px">
+            <button class="btn btn-secondary btn-sm" onclick="editDecision(${i})">Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteDecision(${i})">Del</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('') : '<div class="empty-state"><div class="empty-icon">💡</div><p>No decisions logged yet.</p></div>';
+}
+
+function saveDecision() {
+  const idx = parseInt(document.getElementById('dec-edit-idx').value);
+  const entry = {
+    date: document.getElementById('dec-date').value || new Date().toISOString().split('T')[0],
+    title: document.getElementById('dec-title').value || 'Untitled Decision',
+    why: document.getElementById('dec-why').value,
+    alts: document.getElementById('dec-alts').value,
+    impact: document.getElementById('dec-impact').value,
+    revisit: document.getElementById('dec-revisit').value,
+    notes: document.getElementById('dec-notes').value
+  };
+  if (idx >= 0) DB.decisions[idx] = entry;
+  else DB.decisions.push(entry);
+  saveData();
+  closeModal('modal-decision');
+  renderDecisions();
+}
+
+function editDecision(idx) {
+  const d = DB.decisions[idx];
+  document.getElementById('dec-edit-idx').value = idx;
+  document.getElementById('dec-date').value = d.date;
+  document.getElementById('dec-title').value = d.title;
+  document.getElementById('dec-why').value = d.why;
+  document.getElementById('dec-alts').value = d.alts;
+  document.getElementById('dec-impact').value = d.impact;
+  document.getElementById('dec-revisit').value = d.revisit;
+  document.getElementById('dec-notes').value = d.notes;
+  openModal('modal-decision');
+}
+
+function deleteDecision(idx) {
+  if (confirm('Delete this decision?')) { DB.decisions.splice(idx, 1); saveData(); renderDecisions(); }
+}
+
+// ===== WEEKLY =====
+
+function renderWeekly() {
+  document.getElementById('weekly-list').innerHTML = DB.weekly.length ? [...DB.weekly].reverse().map((w, i) => `
+    <div class="card mb-16">
+      <div class="card-header">
+        <h3>Week of ${w.date}</h3>
+        <div style="display:flex;gap:6px">
+          ${w.rr ? `<span class="badge badge-green">+${w.rr}% Readiness</span>` : ''}
+          <button class="btn btn-secondary btn-sm" onclick="editWeekly(${DB.weekly.length - 1 - i})">Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteWeekly(${DB.weekly.length - 1 - i})">Del</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="grid grid-2">
+          <div>
+            ${w.accomplishments ? `<div class="mb-8"><div style="font-size:11px;font-weight:600;color:var(--green);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Accomplishments</div><p style="font-size:12.5px">${w.accomplishments}</p></div>` : ''}
+            ${w.blockers ? `<div class="mb-8"><div style="font-size:11px;font-weight:600;color:var(--red);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Blockers</div><p style="font-size:12.5px">${w.blockers}</p></div>` : ''}
+          </div>
+          <div>
+            ${w.lessons ? `<div class="mb-8"><div style="font-size:11px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Lessons Learned</div><p style="font-size:12.5px">${w.lessons}</p></div>` : ''}
+            ${w.focus ? `<div><div style="font-size:11px;font-weight:600;color:var(--amber);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Next Week Focus</div><p style="font-size:12.5px">${w.focus}</p></div>` : ''}
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('') : `<div class="empty-state"><div class="empty-icon">📅</div><p>No weekly reviews yet.</p><button class="btn btn-primary mt-16" onclick="openModal('modal-weekly')">Add First Review</button></div>`;
+}
+
+function saveWeekly() {
+  const idx = parseInt(document.getElementById('wk-edit-idx').value);
+  const entry = {
+    date: document.getElementById('wk-date').value || new Date().toISOString().split('T')[0],
+    rr: document.getElementById('wk-rr').value,
+    accomplishments: document.getElementById('wk-accomplishments').value,
+    blockers: document.getElementById('wk-blockers').value,
+    improvements: document.getElementById('wk-improvements').value,
+    lessons: document.getElementById('wk-lessons').value,
+    focus: document.getElementById('wk-focus').value
+  };
+  if (idx >= 0) DB.weekly[idx] = entry;
+  else DB.weekly.push(entry);
+  saveData();
+  closeModal('modal-weekly');
+  renderWeekly();
+}
+
+function editWeekly(idx) {
+  const w = DB.weekly[idx];
+  document.getElementById('wk-edit-idx').value = idx;
+  document.getElementById('wk-date').value = w.date;
+  document.getElementById('wk-rr').value = w.rr;
+  document.getElementById('wk-accomplishments').value = w.accomplishments;
+  document.getElementById('wk-blockers').value = w.blockers;
+  document.getElementById('wk-improvements').value = w.improvements;
+  document.getElementById('wk-lessons').value = w.lessons;
+  document.getElementById('wk-focus').value = w.focus;
+  openModal('modal-weekly');
+}
+
+function deleteWeekly(idx) {
+  if (confirm('Delete this weekly review?')) { DB.weekly.splice(idx, 1); saveData(); renderWeekly(); }
+}
+
+// ===== MATURITY ENGINE =====
+
+const maturityKeys = ['professionalism','clarity','engineeringMaturity','recruiterTrust','githubProof','architectureQuality','documentationQuality','reliabilityPositioning','publicReadiness'];
+const maturityLabels = { professionalism:'Professionalism', clarity:'Clarity', engineeringMaturity:'Engineering Maturity', recruiterTrust:'Recruiter Trust', githubProof:'GitHub Proof', architectureQuality:'Architecture Quality', documentationQuality:'Documentation Quality', reliabilityPositioning:'Reliability Positioning', publicReadiness:'Public Readiness' };
+
+function renderMaturity() {
+  document.getElementById('maturity-sliders').innerHTML = maturityKeys.map(k => `
+    <div class="slider-row">
+      <div class="slider-label">
+        <span class="slider-name">${maturityLabels[k]}</span>
+        <span class="slider-val" id="matval-${k}">${DB.maturity[k]}</span>
+      </div>
+      <input type="range" min="0" max="100" value="${DB.maturity[k]}"
+        oninput="updateMaturity('${k}', this.value)">
+    </div>
+  `).join('');
+  updateMaturityDisplay();
+}
+
+function updateMaturity(key, val) {
+  DB.maturity[key] = parseInt(val);
+  document.getElementById('matval-' + key).textContent = val;
+  updateMaturityDisplay();
+}
+
+function updateMaturityDisplay() {
+  const vals = maturityKeys.map(k => DB.maturity[k]);
+  const avg = Math.round(vals.reduce((a,b) => a+b, 0) / vals.length);
+  const color = avg >= 70 ? '#16a34a' : avg >= 40 ? '#2563eb' : '#d97706';
+  const el = document.getElementById('maturity-overall-circle');
+  if (el) { el.innerHTML = makeCircle(avg, color, 110); }
+  const lbl = document.getElementById('maturity-overall-label');
+  if (lbl) lbl.textContent = avg >= 80 ? '🏆 Portfolio Mature' : avg >= 60 ? '📈 Good Progress' : avg >= 40 ? '🔧 Building Foundation' : '🌱 Early Stage';
+
+  const bars = document.getElementById('maturity-breakdown-bars');
+  if (bars) {
+    bars.innerHTML = maturityKeys.map(k => `
+      <div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+          <span style="font-size:12px;color:var(--text-secondary)">${maturityLabels[k]}</span>
+          <span style="font-size:12px;font-family:var(--mono);color:var(--accent)">${DB.maturity[k]}</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill ${DB.maturity[k] >= 70 ? 'green' : DB.maturity[k] >= 40 ? '' : 'amber'}" style="width:${DB.maturity[k]}%"></div></div>
+      </div>
+    `).join('');
+  }
+}
+
+function saveMaturity() {
+  saveData();
+  const btn = event.target;
+  btn.textContent = '✓ Saved';
+  btn.classList.add('btn-secondary');
+  btn.classList.remove('btn-primary');
+  setTimeout(() => { btn.textContent = 'Save Scores'; btn.classList.add('btn-primary'); btn.classList.remove('btn-secondary'); }, 1500);
+}
+
+// ===== ROADMAP =====
+
+function renderRoadmap() {
+  const phases = DB.roadmap;
+  const totalPct = Math.round(phases.reduce((a,p) => a+p.pct, 0) / phases.length);
+
+  document.getElementById('roadmap-phases').innerHTML = `
+    <div class="card mb-16">
+      <div class="card-body">
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+          <div>${makeCircle(totalPct, totalPct >= 70 ? '#16a34a' : '#2563eb', 80)}</div>
+          <div>
+            <div style="font-size:16px;font-weight:600">Overall Roadmap Progress</div>
+            <div style="font-size:13px;color:var(--text-muted);margin-top:2px">Across ${phases.length} phases · ${totalPct}% complete</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    ` + phases.map((p, i) => {
+    const color = p.pct >= 80 ? '#16a34a' : p.pct >= 40 ? '#2563eb' : '#d97706';
+    return `
+    <div class="roadmap-phase">
+      <div class="phase-header" onclick="togglePhase(${i})">
+        <div class="phase-num">${i + 1}</div>
+        <div>
+          <div class="phase-title">${p.phase}: ${p.title}</div>
+          <div class="phase-sub">${p.status}</div>
+        </div>
+        <div style="width:52px;text-align:center">${makeCircle(p.pct, color, 52)}</div>
+        <div>
+          <input type="range" min="0" max="100" value="${p.pct}"
+            onclick="event.stopPropagation()"
+            oninput="updateRoadmapPct(${i}, this.value); event.stopPropagation()"
+            style="width:80px">
+        </div>
+      </div>
+      <div class="phase-body" id="phase-body-${i}">
+        <div class="grid grid-2">
+          <div>
+            ${p.next ? `<div class="info-row"><span class="info-key">Next Action</span><span class="info-val">${p.next}</span></div>` : ''}
+            ${p.blockers ? `<div class="info-row"><span class="info-key">Blockers</span><span class="info-val" style="color:var(--red)">${p.blockers}</span></div>` : ''}
+          </div>
+          <div>
+            ${p.outcome ? `<div class="info-row"><span class="info-key">Expected Outcome</span><span class="info-val">${p.outcome}</span></div>` : ''}
+          </div>
+        </div>
+        <div style="margin-top:10px;display:flex;gap:8px">
+          <select onchange="updateRoadmapStatus(${i}, this.value)" style="width:160px">
+            ${['Not Started','Planning','In Progress','Complete','Future'].map(s => `<option ${s===p.status?'selected':''}>${s}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function togglePhase(i) {
+  const body = document.getElementById('phase-body-' + i);
+  body.classList.toggle('open');
+}
+
+function updateRoadmapPct(i, val) {
+  DB.roadmap[i].pct = parseInt(val);
+  saveData();
+}
+
+function updateRoadmapStatus(i, val) {
+  DB.roadmap[i].status = val;
+  saveData();
+}
+
+// ===== VERSIONS =====
+
+function renderVersions() {
+  document.getElementById('version-list').innerHTML = DB.versions.length ? [...DB.versions].reverse().map((v, i) => `
+    <div class="version-item">
+      <span class="version-tag">${v.tag}</span>
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+          <strong style="font-size:13.5px">${v.summary}</strong>
+          <div style="display:flex;gap:4px;flex-shrink:0">
+            <span style="font-size:11px;color:var(--text-muted);font-family:var(--mono)">${v.date}</span>
+            <button class="btn btn-secondary btn-sm" onclick="editVersion(${DB.versions.length - 1 - i})">Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteVersion(${DB.versions.length - 1 - i})">Del</button>
+          </div>
+        </div>
+        ${v.changes ? `<p style="font-size:12.5px;color:var(--text-secondary);margin-top:4px">${v.changes}</p>` : ''}
+        ${v.impact ? `<p style="font-size:12px;color:var(--text-muted);margin-top:2px">Impact: ${v.impact}</p>` : ''}
+      </div>
+    </div>
+  `).join('') : '<div class="empty-state"><p>No versions logged yet.</p></div>';
+}
+
+function saveVersion() {
+  const idx = parseInt(document.getElementById('ver-edit-idx').value);
+  const entry = {
+    tag: document.getElementById('ver-tag').value || 'v0.x',
+    date: document.getElementById('ver-date').value || new Date().toISOString().split('T')[0],
+    summary: document.getElementById('ver-summary').value || '',
+    changes: document.getElementById('ver-changes').value,
+    improvements: document.getElementById('ver-improvements').value,
+    impact: document.getElementById('ver-impact').value
+  };
+  if (idx >= 0) DB.versions[idx] = entry;
+  else DB.versions.push(entry);
+  saveData();
+  closeModal('modal-version');
+  renderVersions();
+}
+
+function editVersion(idx) {
+  const v = DB.versions[idx];
+  document.getElementById('ver-edit-idx').value = idx;
+  document.getElementById('ver-tag').value = v.tag;
+  document.getElementById('ver-date').value = v.date;
+  document.getElementById('ver-summary').value = v.summary;
+  document.getElementById('ver-changes').value = v.changes;
+  document.getElementById('ver-improvements').value = v.improvements;
+  document.getElementById('ver-impact').value = v.impact;
+  openModal('modal-version');
+}
+
+function deleteVersion(idx) {
+  if (confirm('Delete this version?')) { DB.versions.splice(idx, 1); saveData(); renderVersions(); }
+}
+
+// ===== EXPORT / IMPORT =====
+
+function exportJSON() {
+  const json = JSON.stringify(DB, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'portfolio-control-room-backup-' + new Date().toISOString().split('T')[0] + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importJSON(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (confirm('This will replace all current data. Continue?')) {
+        DB = data;
+        saveData();
+        renderDashboard();
+        alert('Import successful!');
+      }
+    } catch(err) {
+      alert('Invalid JSON file. Import failed.');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function exportMarkdown() {
+  const checklist = DB.recruiterChecklist;
+  const rrPct = Math.round((checklist.filter(c => c.checked).length / checklist.length) * 100);
+  const matVals = Object.values(DB.maturity);
+  const matScore = Math.round(matVals.reduce((a,b) => a+b, 0) / matVals.length);
+  const roadmapAvg = Math.round(DB.roadmap.reduce((a,r) => a + r.pct, 0) / DB.roadmap.length);
+
+  let md = `# Portfolio Evolution Control Room – Summary\n\n`;
+  md += `**Generated:** ${new Date().toLocaleDateString()}\n\n`;
+  md += `---\n\n`;
+  md += `## Portfolio Status\n\n`;
+  md += `| Metric | Value |\n|---|---|\n`;
+  md += `| Timeline Activities | ${DB.timeline.length} |\n`;
+  md += `| Completed Activities | ${DB.timeline.filter(t => t.status === 'Completed').length} |\n`;
+  md += `| Repositories | ${DB.repos.length} |\n`;
+  md += `| Video Recordings | ${DB.videos.length} |\n`;
+  md += `| Recruiter Readiness | ${rrPct}% |\n`;
+  md += `| Portfolio Maturity | ${matScore}% |\n`;
+  md += `| Roadmap Progress | ${roadmapAvg}% |\n\n`;
+
+  md += `## Recruiter Readiness Checklist\n\n`;
+  DB.recruiterChecklist.forEach(item => {
+    md += `- [${item.checked ? 'x' : ' '}] ${item.label}\n`;
+  });
+
+  md += `\n## Journey Timeline\n\n`;
+  DB.timeline.forEach(t => {
+    md += `### ${t.title} (${t.date})\n`;
+    md += `**Status:** ${t.status} | **Category:** ${t.category} | **Priority:** ${t.priority}\n\n`;
+    if (t.desc) md += `${t.desc}\n\n`;
+    if (t.outcome) md += `**Outcome:** ${t.outcome}\n\n`;
+    if (t.next) md += `**Next:** ${t.next}\n\n`;
+  });
+
+  md += `## Roadmap Phases\n\n`;
+  DB.roadmap.forEach(p => {
+    md += `### ${p.phase}: ${p.title} (${p.pct}%)\n`;
+    md += `**Status:** ${p.status}\n\n`;
+    if (p.next) md += `**Next:** ${p.next}\n\n`;
+    if (p.outcome) md += `**Expected Outcome:** ${p.outcome}\n\n`;
+  });
+
+  md += `## Strategic Decisions\n\n`;
+  DB.decisions.forEach(d => {
+    md += `### ${d.title}\n`;
+    md += `**Date:** ${d.date} | **Impact:** ${d.impact}\n\n`;
+    md += `**Why:** ${d.why}\n\n`;
+    md += `**Alternatives:** ${d.alts}\n\n`;
+  });
+
+  md += `## Version History\n\n`;
+  DB.versions.forEach(v => {
+    md += `### ${v.tag} – ${v.summary} (${v.date})\n`;
+    if (v.changes) md += `${v.changes}\n\n`;
+    if (v.impact) md += `**Impact:** ${v.impact}\n\n`;
+  });
+
+  const blob = new Blob([md], { type: 'text/markdown' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'portfolio-summary-' + new Date().toISOString().split('T')[0] + '.md';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function confirmReset() {
+  if (confirm('⚠️ This will permanently delete all data and restore defaults. Are you sure?')) {
+    if (confirm('Second confirmation: Reset all data?')) {
+      localStorage.removeItem(STORE_KEY);
+      DB = JSON.parse(JSON.stringify(DEFAULT_DATA));
+      saveData();
+      renderDashboard();
+      alert('System reset to defaults.');
+    }
+  }
+}
+
+// ===== INIT =====
+
+window.addEventListener('load', () => {
+  renderDashboard();
+});
+</script>
+</body>
+</html>
